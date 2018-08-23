@@ -3,7 +3,7 @@
         <div class="modal-mask">
             <div class="modal-wrapper">
                 <div class="modal-container">
-                    <div class="modal-header">
+                    <div v-if="!loader" class="modal-header">
                         <slot name="header">
                             <h1>Add new</h1>
                             <select v-model="input_value.type">
@@ -12,7 +12,7 @@
                         </slot>
                     </div>
 
-                    <div class="modal-body">
+                    <div v-if="!loader" class="modal-body">
                         <slot name="body">
                             <select v-model="input_value.parent">
                                 <option disabled>Parent Folder</option>
@@ -27,9 +27,12 @@
                         </slot>
                     </div>
 
-                    <div class="modal-footer">
+                    <div v-if="loader && error == ''" class="center"><div class="loader"></div></div>
+                    <p id="error" v-if="error != ''">{{error}}</p>
+                    <button v-if="error != '' && loader" @click="$emit('close')">Close</button>
+
+                    <div v-if="!loader" class="modal-footer">
                         <slot name="footer">
-                            <p id="error" v-if="error != ''">{{error}}</p>
                             <button @click="$emit('close')">Cancel</button>
                             <button class="modal-default-button" @click="submit()">Submit</button>
                         </slot>
@@ -66,6 +69,7 @@ export default {
                 open: ''
             },
             error: '',
+            loader: false
         }
     },
     created: function(){
@@ -83,6 +87,7 @@ export default {
             if (this.input_value.parent == this.default_value.parent || this.input_value[this.input_value.type.toLowerCase()] == this.default_value[this.input_value.type.toLowerCase()]) return this.error = 'Error on Field !';
             this.error = '';
             // axios
+            this.loader = true
             if (this.input_value.type == 'File') {
                 this.service_create.post_file(this.input_value.parent, this.input_value.file)
                 .then( response => {
@@ -196,5 +201,22 @@ export default {
 .modal-leave-active .modal-container {
     -webkit-transform: scale(1.1);
     transform: scale(1.1);
+}
+
+.loader {
+    border: 8px solid #f3f3f3; /* Light grey */
+    border-top: 8px solid #3498db; /* Blue */
+    border-radius: 50%;
+    width: 40px; height: 40px;
+    animation: spin 2s linear infinite;
+}
+.center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 </style>
