@@ -1,23 +1,29 @@
 <template>
   <div id="app">
-    <img src="./assets/logo.png">
+    <nar-bar></nar-bar>
     <router-view/>
+    <div id="down"></div>
   </div>
 </template>
 
 <script>
+import NavBar from '@/components/NavBar'
+
 export default {
-  name: 'App'
+  name: 'App',
+  components: {
+    'nar-bar': NavBar
+  }
 }
 </script>
 
 <style>
+@font-face {
+  font-family: Exo;
+  src: url('./assets/fonts/Exo-SemiBold.otf');
+}
 #app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+  font-family: Exo;
+  padding-top: 50px;
 }
 </style>
