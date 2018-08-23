@@ -12,6 +12,7 @@
     "build": "node build/build.js"
   },
   "dependencies": {
+    "axios": "^0.18.0",
     "highlight.js": "^9.12.0",
     "showdown": "^1.8.6",
     "turndown": "^4.0.2",
