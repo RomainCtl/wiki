@@ -12,8 +12,12 @@
     "build": "node build/build.js"
   },
   "dependencies": {
+    "highlight.js": "^9.12.0",
+    "showdown": "^1.8.6",
+    "turndown": "^4.0.2",
     "vue": "^2.5.2",
-    "vue-router": "^3.0.1"
+    "vue-router": "^3.0.1",
+    "vue-scrollto": "^2.11.0"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.2",
