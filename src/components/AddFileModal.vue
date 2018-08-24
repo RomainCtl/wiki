@@ -5,10 +5,7 @@
                 <div class="modal-container">
                     <div v-if="!loader" class="modal-header">
                         <slot name="header">
-                            <h1>Add new</h1>
-                            <select v-model="input_value.type">
-                                <option v-for="e in value.type" :key="e">{{e}}</option>
-                            </select>
+                            <h1>Add new File</h1>
                         </slot>
                     </div>
 
@@ -18,17 +15,16 @@
                                 <option disabled>Parent Folder</option>
                                 <option name=".">.</option>
                             </select>
-                            <input v-model="input_value.file" v-if="input_value.type == 'File'" name="filename" placeholder="File name" type="text">
-                            <input v-model="input_value.folder" v-if="input_value.type == 'Folder'" name="foldername" placeholder="Folder name" type="text">
+                            <input v-model="input_value.file" name="filename" placeholder="File name" type="text">
                             <label class="modal-label">
                                 <input v-model="input_value.open" type="checkbox" name="open" checked>
-                                Open the {{input_value.type}} after creation is complete
+                                Open the file after creation is complete
                             </label>
                         </slot>
                     </div>
 
                     <div v-if="loader && error == ''" class="center"><div class="loader"></div></div>
-                    <p id="error" v-if="error != ''">{{error}}</p>
+                    <p class="error" v-if="error != ''">{{error}}</p>
                     <button v-if="error != '' && loader" @click="$emit('close')">Close</button>
 
                     <div v-if="!loader" class="modal-footer">
@@ -44,28 +40,23 @@
 </template>
 
 <script>
-import ServiceCreate from '@/services/service-create'
+import ServiceAddFile from '@/services/service-addfile'
 
 export default {
     name: 'AddFileModal',
     data() {
         return {
             default_value: {
-                type: 'File',
                 parent: 'Parent Folder',
                 file: '',
-                folder: '',
                 open: true
             },
             value: {
-                type: ['File', 'Folder'],
                 parent: ['Parent Folder', '.']
             },
             input_value: {
-                type: '',
                 parent: '',
                 file: '',
-                folder: '',
                 open: ''
             },
             error: '',
@@ -73,7 +64,7 @@ export default {
         }
     },
     created: function(){
-        this.service_create = new ServiceCreate();
+        this.service_addfile = new ServiceAddFile();
 
         this.input_value.type = this.default_value.type;
         this.input_value.parent = this.default_value.parent;
@@ -84,40 +75,27 @@ export default {
     methods: {
         submit: function(e){
             // check
-            if (this.input_value.parent == this.default_value.parent || this.input_value[this.input_value.type.toLowerCase()] == this.default_value[this.input_value.type.toLowerCase()]) return this.error = 'Error on Field !';
+            if (this.input_value.parent == this.default_value.parent || this.input_value.file == this.default_value.file) return this.error = "Error : Fields can't be empty !";
             this.error = '';
             // axios
             this.loader = true
-            if (this.input_value.type == 'File') {
-                this.service_create.post_file(this.input_value.parent, this.input_value.file)
-                .then( response => {
-                    if (this.input_value.open){} // redirection to '/editor/path_to_file'
-                    this.$emit('close')
-                })
-                .catch( err => {
-                    console.log(err);
-                    this.error = "Error " + err.response.status + " : " + err.response.statusText;
-                    // Display error message
-                });
-            } else {
-                this.service_create.post_folder(this.input_value.parent, this.input_value.folder)
-                .then( response => {
-                    if (this.input_value.open){} // redirection to '/editor/path_to_file'
-                    this.$emit('close')
-                })
-                .catch( err => {
-                    console.log(err);
-                    // Display error message
-                    this.error = "Error " + err.response.status + " : " + err.response.statusText;
-                })
-            }
+            this.service_addfile.post_file(this.input_value.parent, this.input_value.file)
+            .then( response => {
+                if (this.input_value.open){} // redirection to '/editor/path_to_file'
+                this.$emit('close')
+            })
+            .catch( err => {
+                console.log(err);
+                this.error = "Error " + err.response.status + " : " + err.response.statusText;
+                // Display error message
+            });
         }
     }
 }
 </script>
 
 <style scoped>
-#error {
+.error {
     color: red;
 }
 .modal-mask {
@@ -203,20 +181,10 @@ export default {
     transform: scale(1.1);
 }
 
-.loader {
-    border: 8px solid #f3f3f3; /* Light grey */
-    border-top: 8px solid #3498db; /* Blue */
-    border-radius: 50%;
-    width: 40px; height: 40px;
-    animation: spin 2s linear infinite;
-}
+@import url('../assets/css/loader.css');
 .center {
     display: flex;
     justify-content: center;
     align-items: center;
-}
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
 }
 </style>

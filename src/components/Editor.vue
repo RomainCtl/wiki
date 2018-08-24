@@ -3,15 +3,41 @@
         <div class="container">
             <div class="form form-stacked">
                 <div class="form-block">
-                <label class="label" for="board_content">Content</label>
-                <div class="form-controls">
-                    <span class="button ion-code" title="Code block <pre><code>" @click="addMarkdown('addCode', 'board_content')"></span>
-                    <span class="button ion-code-working" title="Inline code <code>" @click="addMarkdown('addInlineCode', 'board_content')"></span>
-                    <span class="button" title="Strong <strong>" @click="addMarkdown('addStrong', 'board_content')"><strong>b</strong></span>
-                    <span class="button" title="Emphasis <em>" @click="addMarkdown('addEmphasis', 'board_content')"><strong><em>i</em></strong></span>
-                    <span class="button ion-link" title="Link <a>" @click="addMarkdown('addLink', 'board_content')"></span>
-                </div>
-                <textarea placeholder="Ask a programming question or share a tip with other developers. Markdown is supported." class="textarea-tall" id="board_content"></textarea>
+                    <label class="label" for="board_content">Content</label>
+                    <div class="form-controls">
+                        <span class="dropdown">
+                            <span class="button">Headings</span>
+                            <div class="dropdown-list">
+                                <span class="button" title="Heading 1 <h1>" @click="addMarkdown('addH1', 'board_content')"><h2>Heading 1</h2></span>
+                                <span class="button" title="Heading 2 <h2>" @click="addMarkdown('addH2', 'board_content')"><h3>Heading 2</h3></span>
+                                <span class="button" title="Heading 3 <h3>" @click="addMarkdown('addH3', 'board_content')"><h4>Heading 3</h4></span>
+                                <span class="button" title="Heading 4 <h4>" @click="addMarkdown('addH4', 'board_content')"><h5>Heading 4</h5></span>
+                            </div>
+                        </span>
+                        <span class="button" title="Strong <strong>" @click="addMarkdown('addStrong', 'board_content')"><strong>B</strong></span>
+                        <span class="button" title="Emphasis <em>" @click="addMarkdown('addEmphasis', 'board_content')"><strong><em>I</em></strong></span>
+                        <span class="button" title="Underline <u>" @click="addMarkdown('addUnderline', 'board_content')"><u>U</u></span>
+                        <span class="button" title="Strikethrough <del>" @click="addMarkdown('addStrikethrough', 'board_content')"><del>S </del></span>
+                        <span class="button ion-quote" title="BlockQuote <blockquote>" @click="addMarkdown('addBlockQuote', 'board_content')"></span>
+                        <span class="button ion-code" title="Code block <pre><code>" @click="addMarkdown('addCode', 'board_content')"></span>
+                        <span class="button ion-code-working" title="Inline code <code>" @click="addMarkdown('addInlineCode', 'board_content')"></span>
+                        <span class="dropdown">
+                            <span class="button">Lists</span>
+                            <div class="dropdown-list row">
+                                <span class="button ion-ios-list-outline" title="List <ul>" @click="addMarkdown('addList', 'board_content')"></span>
+                                <span class="button ion-android-list" title="Number list <ol>" @click="addMarkdown('addNumberList', 'board_content')"></span>
+                                <span class="button ion-android-checkbox-outline" title="Checkbox <input>" @click="addMarkdown('addCheckbox', 'board_content')"></span>
+                            </div>
+                        </span>
+                        <span class="button ion-ios-grid-view-outline" title="Table <table>" @click="addMarkdown('addTable', 'board_content')"></span>
+                        <span class="button ion-minus-round" title="Limitation <hr/>" @click="addMarkdown('addHR', 'board_content')"></span>
+                        <span class="button ion-link" title="Link <a>" @click="addMarkdown('addLink', 'board_content')"></span>
+                        <span class="button ion-image" title="Image <img>" @click="addMarkdown('addImage', 'board_content')"></span>
+                    </div>
+                    <textarea @keydown.ctrl="ctrldown" @keyup="ctrlup" placeholder="Markdown editor." class="textarea-tall" id="board_content"></textarea>
+                    <div v-if="loader && error == ''" class="loader"></div>
+                    <p class="error" v-if="error != ''">{{error}}</p>
+                    <button @click="save()" class="save-b" type="button">Save<span class="ion-checkmark-round"></span></button>
                 </div>
             </div>
         </div>
@@ -20,6 +46,8 @@
 
 
 <script>
+import ServiceEditor from '@/services/service-editor'
+
 export default {
     name: 'Editor3',
     data() {
@@ -29,10 +57,42 @@ export default {
                 addInlineCode: "Enter inline code here",
                 addStrong: "Strong text",
                 addEmphasis: "Emphasized text",
-                addLink: "https://romainchantrel.fr"
+                addUnderline: "Underline text",
+                addStrikethrough: "Strikethrough text",
+                addLink: "https://romainchantrel.fr",
+                addCheckbox: "Checked",
+                addList: 'List',
+                addNumberList: 'Number list',
+                addBlockQuote: 'BlockQuote',
+                addHR: '',
+                addImage: 'Image name',
+                addTable: 'Table',
+                addH1: 'Heading 1',
+                addH2: 'Heading 2',
+                addH3: 'Heading 3',
+                addH4: 'Heading 4'
             },
-            buttonFunctions: {}
+            buttonFunctions: {},
+            file: {
+                path: '',
+                filename: '',
+                name: '',
+                content: '',
+            },
+            demo_file: {
+                path: '.',
+                filename: 'WIKI_2018-08-24-22_az56dr9f',
+                name: 'Home page',
+                content: '',
+            },
+            keydown: false,
+            error: '',
+            loader: false
         }
+    },
+    created: function(){
+        this.service_editor = new ServiceEditor();
+        this.file = this.demo_file;
     },
     mounted: function(){
         this.buttonFunctions = {
@@ -40,7 +100,24 @@ export default {
                 addInlineCode: '\`'+this.buttonTypes.addInlineCode+'\`',
                 addStrong: '**'+this.buttonTypes.addStrong+'**',
                 addEmphasis: '*'+this.buttonTypes.addEmphasis+'*',
-                addLink: '[Link title]('+this.buttonTypes.addLink+')'
+                addUnderline: '__'+this.buttonTypes.addUnderline+'__',
+                addStrikethrough: '~~'+this.buttonTypes.addStrikethrough+'~~',
+                addLink: '[Link title]('+this.buttonTypes.addLink+')',
+                addCheckbox: ' - [x] '+this.buttonTypes.addCheckbox+'\n - [x] '+this.buttonTypes.addCheckbox+'\n - [x] '+this.buttonTypes.addCheckbox+'\n',
+                addList: ' - '+this.buttonTypes.addList+'\n - '+this.buttonTypes.addList+'\n - '+this.buttonTypes.addList+'\n',
+                addNumberList: ' 1. '+this.buttonTypes.addNumberList+'\n 2. '+this.buttonTypes.addNumberList+'\n 3. '+this.buttonTypes.addNumberList+'\n',
+                addBlockQuote: '> '+this.buttonTypes.addBlockQuote+'\n\n',
+                addHR: '---'+this.buttonTypes.addHR+'\n',
+                addImage: '!['+this.buttonTypes.addImage+'](image.path)\n',
+                addTable: '| Header 1      |     2 header    |   header 3 |\n\
+| ------------- |: -------------: | ---------: |\n\
+| 1 Online      |        1        |      value |\n\
+| Line 2        |      '+this.buttonTypes.addTable+'      |      value |\n\
+| 3 Online      |        3        |      value |\n',
+                addH1: '# ' + this.buttonTypes.addH1+'\n',
+                addH2: '## ' + this.buttonTypes.addH2+'\n',
+                addH3: '### ' + this.buttonTypes.addH3+'\n',
+                addH4: '#### ' + this.buttonTypes.addH4+'\n'
             }
     },
     methods: {
@@ -60,12 +137,52 @@ export default {
                 textArea.value = text.substring(0, caretPosition) + this.buttonFunctions[buttonType] + text.substring(caretPosition, text.length - 1);
                 return this.matchString(this.buttonTypes[buttonType], textArea, caretPosition + this.buttonTypes[buttonType].length - 1);
             }
+        },
+        image: function(){
+            // TODO upload image .. ?
+            this.addMarkdown('addImage', 'board_content');
+        },
+        prevent: function(e){
+            e.preventDefault();
+            e.stopPropagation();
+        },
+        ctrldown: function(e){
+            if (e.ctrlKey && e.keyCode == 83) {
+                this.prevent(e);
+                this.keydown = true;
+            }
+        },
+        ctrlup: function(e){
+            if (e.keyCode == 83 && this.keydown) {
+                this.keydown = false;
+                this.prevent(e);
+                this.save();
+            }
+        },
+        save: function() {
+            this.loader = true;
+            this.service_editor.put_file().then( response => {
+                if (response.status == 200) {
+                    this.loader = false;
+                } else {
+                    this.error = "Failed save ! Error " + response.status + " : " + response.statusText;
+                }
+            }).catch( err => {
+                console.log(err);
+                this.error = "Failed save ! Error " + err.response.status + " : " + err.response.statusText;
+            });
         }
     }
 }
 </script>
 
 <style scoped>
+@import url('../assets/css/loader.css');
+.error {
+    color: red;
+    margin: 0;
+}
+.loader, .error {display: inline-block}
 #editor {
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
@@ -101,7 +218,7 @@ export default {
 }
 .form textarea:focus {
     background: #FFF;
-    border-color: #338EDA;
+    border-color: #3498db;
     outline: 0;
 }
 .form textarea, .form .textarea {
@@ -148,6 +265,7 @@ export default {
     color: #338EDA;
 }
 
+.dropdown,
 .button {
     border-bottom-left-radius: 4px;
     border-top-left-radius: 4px;
@@ -166,10 +284,10 @@ export default {
     -ms-appearance: none;
     -o-appearance: none;
     appearance: none;
-    padding: 0 0.75rem;
     white-space: nowrap;
     vertical-align: middle;
 }
+.button {padding: 0 0.75rem}
 
 .label {
     width: 100%;
@@ -179,4 +297,41 @@ export default {
     margin-bottom: 0.375rem;
     font-size: 0.875rem;
 }
+
+/* .dropdown {
+    cursor: pointer;
+    display: inline-block;
+} */
+
+.dropdown-list {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    background-color: #fff;
+    border: 1px solid #eee;
+    border-top-color: transparent;
+}
+.dropdown-list h2,
+.dropdown-list h3,
+.dropdown-list h4,
+.dropdown-list h5 {
+    margin: 2px 5px;
+    border-bottom: 1px solid #eee;
+}
+.dropdown-list h5 {border:0}
+.dropdown:hover .dropdown-list {display: flex}
+.row {flex-direction: row}
+.save-b {
+    border: 1px solid #66b8f0;
+    border-radius: 3px;
+    background-color: #3498db;
+    color: #fff;
+    overflow: hidden;
+    height: 27px;
+    font-family: inherit;
+    float: right;
+    cursor: pointer;
+}
+.save-b span {margin-left: 6px}
+.save-b:hover {background-color: #66b8f0}
 </style>

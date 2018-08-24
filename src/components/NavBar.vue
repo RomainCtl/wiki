@@ -3,7 +3,7 @@
         <div class="container">
             <div class="header">
                 <a class="brand" href="/">
-                    <img alt="Wiki" src="../assets/img/linux.png" height="40">
+                    <img alt="Wiki" src="../../static/img/linux.png" height="40">
                     <p>Wiki</p>
                 </a>
             </div>

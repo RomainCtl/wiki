@@ -1,6 +1,7 @@
 <template>
   <div id="app">
     <nar-bar></nar-bar>
+    <!-- file d'ariane ? (or sidebar with structure like a tree) -->
     <router-view/>
     <div id="down"></div>
   </div>
