@@ -8,11 +8,11 @@ export default class ServiceEditor {
         });
         // this.axios_instance.defaults.headers.common['Authorization'] = localStorage.getItem('session_token'); // FIXME Create authentification system
     }
-    put_file(path, filename, file, name){
+    put_file(path, filename, content, name){
         const data = {
             'path': path,
             'name': name,
-            'content': file
+            'content': content
         }
         return this.axios_instance.put('/api/edit.php?id='+filename, data).then( response => {
             return response;
