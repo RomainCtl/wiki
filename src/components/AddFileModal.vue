@@ -12,7 +12,7 @@
                     <div v-if="!loader" class="modal-body">
                         <slot name="body">
                             <select v-model="input_value.parent">
-                                <option disabled>Parent Folder</option>
+                                <option disabled>Parent</option>
                                 <option name=".">.</option>
                             </select>
                             <input v-model="input_value.file" name="filename" placeholder="File name" type="text">
@@ -47,12 +47,12 @@ export default {
     data() {
         return {
             default_value: {
-                parent: 'Parent Folder',
+                parent: 'Parent',
                 file: '',
                 open: true
             },
             value: {
-                parent: ['Parent Folder', '.']
+                parent: ['Parent', '.']
             },
             input_value: {
                 parent: '',
@@ -66,18 +66,13 @@ export default {
     created: function(){
         this.service_addfile = new ServiceAddFile();
 
-        this.input_value.type = this.default_value.type;
-        this.input_value.parent = this.default_value.parent;
-        this.input_value.file = this.default_value.file;
-        this.input_value.folder = this.default_value.folder;
-        this.input_value.open = this.default_value.open;
+        this.input_value = this.default_value;
     },
     methods: {
         submit: function(e){
             // check
             if (this.input_value.parent == this.default_value.parent || this.input_value.file == this.default_value.file) return this.error = "Error : Fields can't be empty !";
             this.error = '';
-            // axios
             this.loader = true
             this.service_addfile.post_file(this.input_value.parent, this.input_value.file)
             .then( response => {
@@ -87,7 +82,6 @@ export default {
             .catch( err => {
                 console.log(err);
                 this.error = "Error " + err.response.status + " : " + err.response.statusText;
-                // Display error message
             });
         }
     }
