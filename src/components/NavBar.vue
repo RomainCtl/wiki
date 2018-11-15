@@ -49,18 +49,18 @@ export default {
             showAddFileModal: false,
             demo: {
                 TD: [
-                    {title: 'TD1', link: 'views/td1'},
-                    {title: 'TD2', link: 'views/td2'},
-                    {title: 'TD3', link: 'views/td3'}
+                    {title: 'TD1', link: 'viewer/td1'},
+                    {title: 'TD2', link: 'viewer/td2'},
+                    {title: 'TD3', link: 'viewer/td3'}
                 ],
                 TP: [
-                    {title: 'TP1', link: 'views/tp1'},
-                    {title: 'TP2', link: 'views/tp2'},
-                    {title: 'TP3', link: 'views/tp3'}
+                    {title: 'TP1', link: 'viewer/tp1'},
+                    {title: 'TP2', link: 'viewer/tp2'},
+                    {title: 'TP3', link: 'viewer/tp3'}
                 ],
                 JS: [
-                    {title: 'VueJS', link: 'views/VueJS'},
-                    {title: 'AngularJS', link: 'views/AngularJS'}
+                    {title: 'VueJS', link: 'viewer/VueJS'},
+                    {title: 'AngularJS', link: 'viewer/AngularJS'}
                 ]
             },
             dropdowns: {}

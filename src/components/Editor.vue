@@ -2,6 +2,7 @@
     <div id="editor">
         <div class="container">
             <div class="form form-stacked">
+                <p>DEBUG : {{ $route.params.route }}</p>
                 <div class="form-block">
                     <input @keydown.ctrl="ctrldown" @keyup="ctrlup" type="text" id="file_name" placeholder="Title" v-model="file.name">
                     <div class="form-controls">
@@ -214,7 +215,7 @@ export default {
     -moz-box-sizing: border-box;
     box-sizing: border-box;
     line-height: 1.5;
-    width: 50vw; height: 60vh;
+    width: 60vw; height: 70vh;
 }
 
 .container {
@@ -238,7 +239,7 @@ export default {
     border-width: 1px;
     box-shadow: none;
     display: inline-block;
-    width: 100%; height: 100%;
+    width: 100%;
     resize: none;
     padding: 0.75rem;
     -webkit-appearance: none;

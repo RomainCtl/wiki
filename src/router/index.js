@@ -14,12 +14,12 @@ export default new Router({
       component: HelloWorld
     },
     {
-      path: '/viewer',
+      path: '/viewer/:route(.*)',
       name: 'Viewer',
       component: Viewer
     },
     {
-      path: '/editor',
+      path: '/editor/:route(.*)',
       name: 'Editor',
       component: Editor
     }

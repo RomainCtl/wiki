@@ -1,5 +1,6 @@
 <template>
     <div id="viewer">
+        <p>DEBUG : {{ $route.params.route }}</p>
         <div v-html="res"></div>
         <div v-html="res2"></div>
     </div>
