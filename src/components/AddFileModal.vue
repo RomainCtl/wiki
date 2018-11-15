@@ -15,7 +15,7 @@
                                 <option disabled>Parent</option>
                                 <option name=".">.</option>
                             </select>
-                            <input v-model="input_value.file" name="filename" placeholder="File name" type="text">
+                            <input v-model="input_value.file" name="filename" placeholder="File name" type="text" maxlength="14">
                             <label class="modal-label">
                                 <input v-model="input_value.open" type="checkbox" name="open" checked>
                                 Open the file after creation is complete
