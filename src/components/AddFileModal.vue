@@ -13,7 +13,7 @@
                         <slot name="body">
                             <select v-model="input_value.parent">
                                 <option disabled>Parent</option>
-                                <option name=".">.</option>
+                                <option v-for="$e in value.parent" :key="$e" :name="$e">{{$e}}</option>
                             </select>
                             <input v-model="input_value.file" name="filename" placeholder="File name" type="text" maxlength="14">
                             <label class="modal-label">
@@ -52,7 +52,7 @@ export default {
                 open: true
             },
             value: {
-                parent: ['Parent', '.']
+                parent: []
             },
             input_value: {
                 parent: '',
@@ -66,7 +66,18 @@ export default {
     created: function(){
         this.service_addfile = new ServiceAddFile();
 
-        this.input_value = this.default_value;
+        this.input_value = Object.assign({}, this.default_value);
+    },
+    mounted: function(){
+        this.service_addfile.get_paths('home').then( response => {
+            if (response['status'] == 200) {
+                this.value.parent = ['home'];
+                this.value.parent.push(...response['data']['child_paths']);
+            }
+            // TODO else
+        }).catch( err => {
+            console.log(err);
+        });
     },
     methods: {
         submit: function(e){
@@ -76,8 +87,12 @@ export default {
             this.loader = true
             this.service_addfile.post_file(this.input_value.parent, this.input_value.file)
             .then( response => {
-                if (this.input_value.open){} // redirection to '/editor/path_to_file'
-                this.$emit('close')
+                this.$emit('close');
+                if (response.status == 201) {
+                    if (this.input_value.open){
+                        this.$router.push({path: "/editor/"+this.input_value.parent+"/"+this.input_value.file});
+                    }
+                }
             })
             .catch( err => {
                 console.log(err);
