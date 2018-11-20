@@ -29,6 +29,8 @@
             </ul>
             <div class="nav-divider right"></div>
             <div class="form right">
+                <button v-if="!showeditbtn" @click="view()" type="button" title="Close editor" class="btn add"><span class="ion-close"></span></button>
+                <button v-if="showeditbtn" @click="edit()" type="button" title="Edit file" class="btn add"><span class="ion-edit"></span></button>
                 <button @click="showAddFileModal = true" type="button" title="Add file" class="btn add"><span class="ion-plus"></span></button>
             </div>
         </div>
@@ -47,6 +49,7 @@ export default {
     data() {
         return {
             showAddFileModal: false,
+            showeditbtn: true,
             demo: {
                 TD: [
                     {title: 'TD1', link: 'viewer/td1'},
@@ -68,11 +71,23 @@ export default {
     },
     created: function() {
         this.dropdowns = this.demo;
+        this.showeditbtn = (this.$route.name == "Viewer");
     },
     methods: {
         search: function(e){
             e.preventDefault()
             // axios
+        },
+        edit: function(){
+            let r = this.$route.fullPath.replace('viewer', "editor");
+            // TODO redirection to login page if token timeout
+            this.$router.push({path: r});
+            this.showeditbtn = false;
+        },
+        view: function(){
+            let r = this.$route.fullPath.replace('editor', "viewer");
+            this.$router.push({path: r});
+            this.showeditbtn = true;
         }
     }
 }
@@ -263,7 +278,10 @@ nav {
 }
 .list > li > a:hover {color: #333}
 .icon {font-size: 24px}
-.add {border-radius: 50%}
+.add {
+    border-radius: 50%;
+    margin-left: 5px;
+}
 .nav-divider {
     height: 47px; width: 1px;
     margin: 4px 0 4px 10px;

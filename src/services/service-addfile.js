@@ -10,12 +10,19 @@ export default class ServiceAddFile {
     }
     post_file(parent, filename){
         const data = {
-            'path': parent,
+            'parents': parent,
             'name': filename
         }
-        return this.axios_instance.post('/api/create.php', data).then( response => {
+        return this.axios_instance.post('/file', data).then( response => {
             return response;
         }) .catch( err => {
+            throw err;
+        })
+    }
+    get_paths(filename_path){
+        return this.axios_instance.get('/file/list/'+filename_path.replace('/', '%2f')).then( response => {
+            return response;
+        }).catch( err => {
             throw err;
         })
     }
