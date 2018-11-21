@@ -14,6 +14,9 @@ export default {
   name: 'App',
   components: {
     'nar-bar': NavBar
+  },
+  created: function(){
+    if (this.$route.fullPath == "/") this.$router.push({path: "/viewer/home"});
   }
 }
 </script>
