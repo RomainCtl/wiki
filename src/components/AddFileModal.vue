@@ -40,7 +40,7 @@
 </template>
 
 <script>
-import ServiceAddFile from '@/services/service-addfile'
+import ServiceFile from '@/services/service-file'
 
 export default {
     name: 'AddFileModal',
@@ -64,12 +64,12 @@ export default {
         }
     },
     created: function(){
-        this.service_addfile = new ServiceAddFile();
+        this.service_file = new ServiceFile();
 
         this.input_value = Object.assign({}, this.default_value);
     },
     mounted: function(){
-        this.service_addfile.get_paths('home').then( response => {
+        this.service_file.get_paths('home').then( response => {
             if (response['status'] == 200) {
                 this.value.parent = ['home'];
                 this.value.parent.push(...response['data']['child_paths']);
@@ -85,7 +85,7 @@ export default {
             if (this.input_value.parent == this.default_value.parent || this.input_value.file == this.default_value.file) return this.error = "Error : Fields can't be empty !";
             this.error = '';
             this.loader = true
-            this.service_addfile.post_file(this.input_value.parent, this.input_value.file)
+            this.service_file.post(this.input_value.parent, this.input_value.file)
             .then( response => {
                 this.$emit('close');
                 if (response.status == 201) {

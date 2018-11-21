@@ -1,12 +1,12 @@
 <template>
     <div id="viewer">
-        <p>DEBUG : {{ $route.params.route }}</p>
         <div v-html="res"></div>
-        <div v-html="res2"></div>
     </div>
 </template>
 
 <script>
+import ServiceFile from '@/services/service-file'
+
 import showdown from 'showdown';
 import hljs from 'highlight.js';
 
@@ -18,57 +18,22 @@ export default {
     data() {
         return {
             converter: new showdown.Converter({tasklists: true, tables: true, simpleLineBreaks: true, underline: true, strikethrough: true}),
-            exemple: "# hello, markdown!\n"+
-                "```javascript \n"+
-                "function fifo(){ \n"+
-                "\tvar bar = 'bar'; \n"+
-                "\treturn bar; \n"+
-                "}\n"+
-                "```\n"+
-                "__yolo__\n"+
-                "~~yolo~~\n"+
-                " - [x] This task is done \n- [ ] This is still pending",
-            demo: '```\n\
-Enter code here\n\
-```\n\
-\n\
-`Enter inline code here`\n\
-**Strong text**\n\
-*Emphasized text*\n\
-[Link title](https://romainchantrel.fr)\n\
- - [x] Checked\n\
- - [x] Checked\n\
- - [] Not checked\n\
-\n\
- - List\n\
- - List\n\
- - List\n\
-\n\
- 1. Number list\n\
- 2. Number list\n\
- 3. Number list\n\
-\n\
-> BlockQuote\n\
-\n\
-\n\
----\n\
-\n\
-![Image name](image.path)\n\
-\n\
-| Header 1      |     2 header    |   header 3 |\n\
-| ------------- |: -------------: | ---------: |\n\
-| 1 Online      |        1        |      value |\n\
-| Line 2        |      Table      |      value |\n\
-| 3 Online      |        3        |      value |\n\
-\n\
-',
-            res: "",
-            res2: ""
+            file: null,
+            res: ''
         }
     },
+    created: function(){
+        this.service_file = new ServiceFile();
+    },
     mounted: function(){
-        this.res = this.converter.makeHtml(this.exemple);
-        this.res2 = this.converter.makeHtml(this.demo);
+        this.service_file.get(this.$route.fullPath.replace('/viewer/', '')).then( response => {
+            if (response['status'] == 200) {
+                this.file = response['data'];
+                this.res = this.converter.makeHtml(this.file['content']);
+            }
+        }).catch( err => {
+            console.log(err);
+        });
     },
     updated: function(){
         // HighlightBlock

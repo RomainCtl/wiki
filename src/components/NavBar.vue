@@ -39,6 +39,7 @@
 </template>
 
 <script>
+import ServiceFile from '@/services/service-file'
 import AddFileModal from '@/components/AddFileModal'
 
 export default {
@@ -52,25 +53,30 @@ export default {
             showeditbtn: true,
             demo: {
                 TD: [
-                    {title: 'TD1', link: 'viewer/td1'},
-                    {title: 'TD2', link: 'viewer/td2'},
-                    {title: 'TD3', link: 'viewer/td3'}
+                    {title: 'TD1', link: 'td1'},
+                    {title: 'TD2', link: 'td2'},
+                    {title: 'TD3', link: 'td3'}
                 ],
                 TP: [
-                    {title: 'TP1', link: 'viewer/tp1'},
-                    {title: 'TP2', link: 'viewer/tp2'},
-                    {title: 'TP3', link: 'viewer/tp3'}
+                    {title: 'TP1', link: 'tp1'},
+                    {title: 'TP2', link: 'tp2'},
+                    {title: 'TP3', link: 'tp3'}
                 ],
                 JS: [
-                    {title: 'VueJS', link: 'viewer/VueJS'},
-                    {title: 'AngularJS', link: 'viewer/AngularJS'}
+                    {title: 'VueJS', link: 'VueJS'},
+                    {title: 'AngularJS', link: 'AngularJS'}
                 ]
             },
             dropdowns: {}
         }
     },
     created: function() {
+        this.service_file = new ServiceFile();
         this.dropdowns = this.demo;
+        // this.get_path();
+        this.showeditbtn = (this.$route.name == "Viewer");
+    },
+    updated: function() {
         this.showeditbtn = (this.$route.name == "Viewer");
     },
     methods: {
@@ -88,6 +94,17 @@ export default {
             let r = this.$route.fullPath.replace('editor', "viewer");
             this.$router.push({path: r});
             this.showeditbtn = true;
+        },
+        get_path: function(){
+            this.service_file.get_paths('home', 3).then( response => {
+            if (response['status'] == 200) {
+                console.log(response.data);
+                this.dropdowns = response['data']['child_paths'];
+            }
+            // TODO else
+        }).catch( err => {
+            console.log(err);
+        });
         }
     }
 }

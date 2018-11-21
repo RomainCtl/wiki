@@ -2,7 +2,6 @@
     <div id="editor">
         <div class="container">
             <div class="form form-stacked">
-                <p>DEBUG : {{ $route.params.route }}</p>
                 <div class="form-block">
                     <input @keydown.ctrl="ctrldown" @keyup="ctrlup" type="text" id="file_name" placeholder="Title" v-model="file.name">
                     <div class="form-controls">
@@ -37,7 +36,8 @@
                     </div>
                     <textarea @keydown.ctrl="ctrldown" @keyup="ctrlup" placeholder="Markdown editor." class="textarea-tall" id="board_content" v-model="file.content"></textarea>
                     <div v-if="loader && error == ''" class="loader"></div>
-                    <p class="error" v-if="error != ''">{{error}}</p>
+                    <span class="error" v-if="error != ''">{{error}}</span>
+                    <p id="infos">Author : {{file.author}}<br/>Create date : {{file.create_date}}<br/>Last modified date : {{file.last_edit_date}}</p>
                     <button v-if="!loader" @click="save()" class="save-b" type="button">Save<span class="ion-checkmark-round"></span></button>
                 </div>
             </div>
@@ -47,7 +47,7 @@
 
 
 <script>
-import ServiceEditor from '@/services/service-editor'
+import ServiceFile from '@/services/service-file'
 
 export default {
     name: 'Editor3',
@@ -74,33 +74,17 @@ export default {
                 addH4: 'Heading 4'
             },
             buttonFunctions: {},
-            file: {
-                path: '',
-                filename: '',
-                name: '',
-                content: '',
-            },
-            demo_file: {
-                path: '.',
-                filename: 'WIKI_2018-08-24-22_az56dr9f',
-                name: 'Home page',
-                content: '[Romain Chantrel](https://romainchantrel.fr)\n\
- - [x] jobs\n\
- - [x] car\n\
- - [] dog\n\
-\n\
-> Vous bluffez Martoni !\n',
-            },
+            file: {},
             keydown: false,
             error: '',
             loader: false
         }
     },
-    created: function(){
-        this.service_editor = new ServiceEditor();
-        this.file = this.demo_file;
+    created: function() {
+        this.service_file = new ServiceFile();
     },
-    mounted: function(){
+    mounted: function() {
+//         // FIXME create store (this request already requested on viewer ..)
         this.buttonFunctions = {
             addCode: `\`\`\`\n`+this.buttonTypes.addCode+`\n\`\`\`\n\n`,
             addInlineCode: '\`'+this.buttonTypes.addInlineCode+'\`',
@@ -129,6 +113,9 @@ export default {
         this.get_file();
     },
     methods: {
+        capitalizeFirstLetter: function(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        },
         matchString: function(target, textArea, limit) {
             var highlight = this.file.content.lastIndexOf(target, limit);
             textArea.value = this.file.content;
@@ -172,10 +159,11 @@ export default {
             if (!this.loader){
                 this.error = '';
                 this.loader = true;
-                this.service_editor.put_file(this.file.path, this.file.filename, this.file.content, this.file.name).then( response => {
+                this.service_file.put(this.file.path, this.file.content, this.file.name).then( response => {
                     this.loader = false;
                     if (response.status == 200) {
-                        // TODO redirection to viewer and ..
+                        console.log(response);
+                        this.$router.push({path: "/viewer/"+this.file.path});
                     } else {
                         this.error = "Failed save ! Error " + response.status + " : " + response.statusText;
                     }
@@ -187,16 +175,15 @@ export default {
             }
         },
         get_file: function(){
-            // this.service_editor.get_file_content(path, filename).then( response => {
-            //     if (response.status == 200){
-            //         this.file = this.response.data
-            //     } else {
-            //         // TODO ERROR can't get file data
-            //     }
-            // }).catch( err => {
-            //     console.log(err);
-            //     // TODO ERROR can't get file data
-            // });
+            this.service_file.get(this.$route.fullPath.replace('/editor/', '')).then( response => {
+                if (response['status'] == 200) {
+                    this.file = response['data'];
+                    this.file['name'] = this.file.path.split('/');
+                    this.file['name'] = this.capitalizeFirstLetter(this.file['name'][this.file['name'].length-1]);
+                }
+            }).catch( err => {
+                console.log(err);
+            });
         }
     }
 }
@@ -216,6 +203,13 @@ export default {
     box-sizing: border-box;
     line-height: 1.5;
     width: 60vw; height: 70vh;
+}
+
+#infos {
+    max-width: calc(60vw - 70px);
+    display: inline-block;
+    margin: 0 auto;
+    font-size: 12px;
 }
 
 .container {
